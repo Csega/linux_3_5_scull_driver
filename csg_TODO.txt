@@ -1,0 +1,52 @@
+SOLVED! main.c: line 557: 	.unlocked_ioctl = scull_ioctl,
+	warning: initialization from incompatible pointer type [enabled by default]
+	warning: (near initialization for ‘scull_fops.unlocked_ioctl’) [enabled by default]
+Had to edit the scull_ioctl in the main.c and scull.h from this:
+int     scull_ioctl(struct inode *inode, struct file *filp,
+                    unsigned int cmd, unsigned long arg);
+to this:
+static long     scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
+And THAT was a mistake. Causes the following compile time warnings/errors:
+---
+make[1]: Entering directory `/usr/src/linux-headers-3.5.0-19-generic'
+  CC [M]  /.../examples/scull/main.o
+  CC [M]  /.../examples/scull/pipe.o
+In file included from /.../examples/scull/pipe.c:32:0:
+/.../examples/scull/scull.h:133:13: warning: ‘scull_ioctl’ used but never defined [enabled by default]
+  CC [M]  /.../examples/scull/access.o
+In file included from /.../examples/scull/access.c:34:0:
+/.../examples/scull/scull.h:133:13: warning: ‘scull_ioctl’ used but never defined [enabled by default]
+  LD [M]  /.../examples/scull/scull.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+WARNING: "scull_ioctl" [/.../examples/scull/scull.ko] undefined!
+  CC      /.../examples/scull/scull.mod.o
+  LD [M]  /.../examples/scull/scull.ko
+make[1]: Leaving directory `/usr/src/linux-headers-3.5.0-19-generic'
+
+------------------------------------------------------------------------------------------
+
+
+SOLVED! pipe.c line 131: In function ‘scull_p_read’: prepare_to_wait(&dev->outq, &wait, TASK_INTERRUPTIBLE);
+	error: ‘TASK_INTERRUPTIBLE’ undeclared (first use in this function)
+	note: each undeclared identifier is reported only once for each function it appears in
+	error: implicit declaration of function ‘signal_pending’ [-Werror=implicit-function-declaration]
+	error: implicit declaration of function ‘schedule’ [-Werror=implicit-function-declaration]
+Had to include <linux/sched.h>
+
+SOLVED! pipe.c line 168: In function ‘scull_getwritespace’: prepare_to_wait(&dev->outq, &wait, TASK_INTERRUPTIBLE);
+	error: ‘TASK_INTERRUPTIBLE’ undeclared (first use in this function)
+Had to include <linux/sched.h>
+
+SOLVED! pipe.c line 219: In function ‘scull_p_write’: wake_up_interruptible(&dev->inq);  /* blocked in read() and select() */
+	error: ‘TASK_INTERRUPTIBLE’ undeclared (first use in this function)
+	error: ‘SIGIO’ undeclared (first use in this function)
+	error: ‘POLL_IN’ undeclared (first use in this function)
+Had to include <linux/sched.h>
+
+SOLVED! pipe.c line 320: At top level: 	.unlocked_ioctl =	scull_ioctl,
+	warning: initialization from incompatible pointer type [enabled by default]
+	warning: (near initialization for ‘scull_pipe_fops.unlocked_ioctl’) [enabled by default]
+In theory, the scull_ioctl function signature change in the main.c and scull.h solved this too.
+
+Made the tutorial at http://jayaramprabhudurairaj.com/?p=13 solved all, except the change of the scull_ioctl signature.
