@@ -1,0 +1,17 @@
+You can compile the driver (under Ubuntu 12.10 - kernel 3.5.0-19) with make, since the Makefile is configured correctly.
+
+You can load/unload the driver with the:
+
+	sudo ./scull_load
+	sudo ./scull_unload
+
+scripts, or just use:
+
+	sudo insmod scull.ko
+	sudo rmmod scull.
+
+You can watch the list of the loaded kernel modules with the lsmod command.
+
+There is an init script (scull.init), which you should copy to /etc/init.d, but some distributions still place them elsewhere. In addition, if your script is to be run at boot time, you need to make a link to it from the appropriate run-level directory (i.e., .../rc3.d). Haven't tested it with the 3.5.0-19 kernel.
+
+
