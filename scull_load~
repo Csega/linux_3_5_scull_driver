@@ -6,7 +6,7 @@ mode="664"
 
 # Group: since distributions do it differently, look for wheel or use staff
 if grep -q '^staff:' /etc/group; then
-    group="sudo" #with the staff it did not work and I could not add myself to the staff group... :( with useradd -G staff username
+    group="sudo" #with the staff it did not work and I could not add myself to the staff group... :( with useradd -G staff csega
 else
     group="wheel"
 fi
